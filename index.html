@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Саволнома — Saydahtam Atoev</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060a12;
+      --card: rgba(15, 26, 46, 0.7);
+      --border: rgba(34, 211, 238, 0.18);
+      --border-focus: rgba(34, 211, 238, 0.55);
+      --cyan: #22d3ee;
+      --sky: #38bdf8;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --dim: #64748b;
+      --input-bg: rgba(15, 26, 46, 0.95);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      padding: 2.5rem 1rem 4rem;
+    }
+
+    /* blobs */
+    .blobs {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+    }
+    .b1 { top: -5rem; right: -3rem; width: 20rem; height: 20rem; background: rgba(34,211,238,0.15); filter: blur(100px); }
+    .b2 { bottom: 15%; left: -4rem; width: 15rem; height: 15rem; background: rgba(56,189,248,0.1); filter: blur(80px); }
+    .b3 { bottom: 5%; right: 20%; width: 10rem; height: 10rem; background: rgba(34,211,238,0.07); filter: blur(60px); }
+
+    /* wrapper */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    /* header */
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    .page-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 0.75rem;
+    }
+    .page-title {
+      font-size: clamp(1.4rem, 4vw, 2rem);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+    .page-divider {
+      width: 2.5rem;
+      height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--sky));
+      border-radius: 999px;
+      box-shadow: 0 0 12px rgba(34,211,238,0.4);
+      margin: 1rem auto 0;
+    }
+
+    /* card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 1.5rem;
+      padding: 1.75rem 1.5rem;
+      box-shadow: 0 0 40px rgba(34,211,238,0.07), 0 12px 40px rgba(0,0,0,0.3);
+    }
+    @media (min-width: 600px) { .card { padding: 2.25rem 2rem; } }
+
+    /* questions */
+    .questions { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    .q-item { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .q-label {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    @media (min-width: 600px) { .q-label { font-size: 15px; } }
+
+    .q-num {
+      flex-shrink: 0;
+      min-width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(34,211,238,0.12);
+      border: 1px solid rgba(34,211,238,0.25);
+      color: var(--cyan);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .q-textarea {
+      width: 100%;
+      min-height: 80px;
+      border-radius: 0.875rem;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      padding: 0.75rem 1rem;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      color: var(--text);
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      line-height: 1.6;
+    }
+    .q-textarea::placeholder { color: var(--dim); }
+    .q-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px rgba(34,211,238,0.13);
+    }
+
+    /* divider between questions */
+    .q-sep {
+      height: 1px;
+      background: var(--border);
+      border: none;
+    }
+
+    /* submit */
+    .btn-submit {
+      display: flex;
+      width: 100%;
+      min-height: 54px;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      cursor: pointer;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--sky) 100%);
+      padding: 0.875rem 1.5rem;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      color: #060a12;
+      box-shadow: 0 0 32px rgba(34,211,238,0.3);
+      transition: filter 0.2s, transform 0.15s;
+      margin-top: 0.5rem;
+    }
+    @media (min-width: 600px) { .btn-submit { font-size: 16px; } }
+    .btn-submit:hover { filter: brightness(1.1); }
+    .btn-submit:active { transform: scale(0.98); }
+
+    /* success */
+    .success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      padding: 2rem 0 0.5rem;
+    }
+    .success.show { display: flex; }
+    .success-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: rgba(34,211,238,0.12);
+      border: 1px solid rgba(34,211,238,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan);
+    }
+    .success h2 { font-size: 20px; font-weight: 700; }
+    .success p { font-size: 14px; color: var(--muted); line-height: 1.6; max-width: 320px; }
+    .btn-reset {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--cyan);
+      font-family: 'Inter', sans-serif;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .wrapper { animation: fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) both; }
+  </style>
+</head>
+<body>
+
+  <div class="blobs" aria-hidden="true">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="blob b3"></div>
+  </div>
+
+  <div class="wrapper">
+
+    <div class="page-header">
+      <p class="page-eyebrow">Saydahtam Atoev Business Academy</p>
+      <h1 class="page-title">Саволнома</h1>
+      <div class="page-divider"></div>
+    </div>
+
+    <div class="card">
+      <div id="form-body">
+        <form id="qform" novalidate>
+          <div class="questions">
+
+            <div class="q-item">
+              <label class="q-label" for="q1">
+                <span class="q-num">1</span>
+                Чанд марҳилаи фурӯшро медонед? Онҳоро номбар кунед.
+              </label>
+              <textarea class="q-textarea" id="q1" name="q1" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q2">
+                <span class="q-num">2</span>
+                Оё шумо скрипт истифода мебаред? Агар ҳа, кадомҳоянд?
+              </label>
+              <textarea class="q-textarea" id="q2" name="q2" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q3">
+                <span class="q-num">3</span>
+                Оё шумо бо эътирозҳои мизоҷ кор карда метавонед? Масалан, вақте ки мизоҷ мегӯяд: «Қиммат аст» ё «Маслиҳат мекунам». Шумо чӣ ҷавоб медиҳед?
+              </label>
+              <textarea class="q-textarea" id="q3" name="q3" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q4">
+                <span class="q-num">4</span>
+                Ҳангоми фурӯши рӯ ба рӯ, чӣ гуна шартномаро мебандед, то ки фурӯш анҷом ёбад?
+              </label>
+              <textarea class="q-textarea" id="q4" name="q4" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q5">
+                <span class="q-num">5</span>
+                Оё шумо фурӯши телефонӣ кардаед? Аз чанд лид чандтояш ба харид табдил ёфтанд?
+              </label>
+              <textarea class="q-textarea" id="q5" name="q5" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q6">
+                <span class="q-num">6</span>
+                Вақте ки мизоҷ мегӯяд: «Қиммат аст, дар ҷои дигар арзонтар дидам», ҳаракати минбаъдаи шумо чӣ аст?
+              </label>
+              <textarea class="q-textarea" id="q6" name="q6" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q7">
+                <span class="q-num">7</span>
+                Ҳангоме ки мизоҷ мегӯяд: «Нархатон арзон аст, лекин ҳоло фикр мекунам», шумо чӣ кор мекунед, то ӯ аз фикр ба қарор гузарад?
+              </label>
+              <textarea class="q-textarea" id="q7" name="q7" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q8">
+                <span class="q-num">8</span>
+                Оё шумо медонед, ки оффер чист? Ва кадом офферҳоро истифода мебаред?
+              </label>
+              <textarea class="q-textarea" id="q8" name="q8" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q9">
+                <span class="q-num">9</span>
+                Ҳангоми фурӯш, шумо сӯҳбатро идора мекунед ё танҳо ба саволҳои мизоҷ ҷавоб медиҳед?
+              </label>
+              <textarea class="q-textarea" id="q9" name="q9" rows="3" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <hr class="q-sep" />
+
+            <div class="q-item">
+              <label class="q-label" for="q10">
+                <span class="q-num">10</span>
+                Агар дар корхонаи шумо шуъбаи муосири фурӯш мебуд, ки бе иштироки шумо кор мекард ва даромад 5 баробар зиёд мешуд, ояндаи ширкатро чӣ гуна мебинед? Чаро аз имрӯз оғоз накунед, то аз рақибон қафо намонед?
+              </label>
+              <textarea class="q-textarea" id="q10" name="q10" rows="4" placeholder="Ҷавоби худро инҷо нависед..."></textarea>
+            </div>
+
+            <button type="submit" class="btn-submit">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              Фиристодан
+            </button>
+
+          </div>
+        </form>
+      </div>
+
+      <div class="success" id="success">
+        <div class="success-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2>Ташаккур!</h2>
+        <p>Ҷавобҳои шумо қабул шуданд. Мо ба зудӣ бо шумо тамос мегирем.</p>
+        <button class="btn-reset" onclick="resetForm()">Аз нав фиристодан</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      'Чанд марҳилаи фурӯшро медонед? Онҳоро номбар кунед.',
+      'Оё шумо скрипт истифода мебаред? Агар ҳа, кадомҳоянд?',
+      'Оё шумо бо эътирозҳои мизоҷ кор карда метавонед? Масалан, вақте ки мизоҷ мегӯяд: «Қиммат аст» ё «Маслиҳат мекунам». Шумо чӣ ҷавоб медиҳед?',
+      'Ҳангоми фурӯши рӯ ба рӯ, чӣ гуна шартномаро мебандед, то ки фурӯш анҷом ёбад?',
+      'Оё шумо фурӯши телефонӣ кардаед? Аз чанд лид чандтояш ба харид табдил ёфтанд?',
+      'Вақте ки мизоҷ мегӯяд: «Қиммат аст, дар ҷои дигар арзонтар дидам», ҳаракати минбаъдаи шумо чӣ аст?',
+      'Ҳангоме ки мизоҷ мегӯяд: «Нархатон арзон аст, лекин ҳоло фикр мекунам», шумо чӣ кор мекунед, то ӯ аз фикр ба қарор гузарад?',
+      'Оё шумо медонед, ки оффер чист? Ва кадом офферҳоро истифода мебаред?',
+      'Ҳангоми фурӯш, шумо сӯҳбатро идора мекунед ё танҳо ба саволҳои мизоҷ ҷавоб медиҳед?',
+      'Агар дар корхонаи шумо шуъбаи муосири фурӯш мебуд, ки бе иштироки шумо кор мекард ва даромад 5 баробар зиёд мешуд, ояндаи ширкатро чӣ гуна мебинед? Чаро аз имрӯз оғоз накунед, то аз рақибон қафо намонед?',
+    ];
+
+    document.getElementById('qform').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const text = 'Ҷавоби дуруст';
+      window.open('https://wa.me/992918175700?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+
+      document.getElementById('form-body').style.display = 'none';
+      document.getElementById('success').classList.add('show');
+    });
+
+    function resetForm() {
+      document.getElementById('qform').reset();
+      document.getElementById('form-body').style.display = '';
+      document.getElementById('success').classList.remove('show');
+    }
+  </script>
+</body>
+</html>
