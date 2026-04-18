@@ -182,6 +182,47 @@
     .btn-submit:hover { filter: brightness(1.1); }
     .btn-submit:active { transform: scale(0.98); }
 
+    /* validation */
+    .q-textarea.error {
+      border-color: rgba(239,68,68,0.7) !important;
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.18) !important;
+    }
+    .q-item.error .q-num {
+      background: rgba(239,68,68,0.15);
+      border-color: rgba(239,68,68,0.45);
+      color: #f87171;
+    }
+    /* fixed toast */
+    .toast {
+      position: fixed;
+      bottom: 1.75rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(140%);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: rgba(18, 6, 6, 0.93);
+      border: 1px solid rgba(239,68,68,0.55);
+      border-radius: 1rem;
+      padding: 0.85rem 1.25rem;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: #fca5a5;
+      white-space: nowrap;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.55), 0 0 24px rgba(239,68,68,0.15);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.38s cubic-bezier(0.34,1.46,0.64,1), opacity 0.3s ease;
+    }
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .toast svg { flex-shrink: 0; }
+
     /* success */
     .success {
       display: none;
@@ -233,8 +274,7 @@
   <div class="wrapper">
 
     <div class="page-header">
-      <p class="page-eyebrow">Saydahtam Atoev Business Academy</p>
-      <h1 class="page-title">Саволнома</h1>
+<h1 class="page-title">Гузариш ба саволҳои тестӣ оид ба фурӯш</h1>
       <div class="page-divider"></div>
     </div>
 
@@ -343,8 +383,9 @@
 
             <button type="submit" class="btn-submit">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              Фиристодан
+              Муқоисаи ҷавобҳо
             </button>
+
 
           </div>
         </form>
@@ -363,34 +404,96 @@
   </div>
 
   <script>
-    const questions = [
-      'Чанд марҳилаи фурӯшро медонед? Онҳоро номбар кунед.',
-      'Оё шумо скрипт истифода мебаред? Агар ҳа, кадомҳоянд?',
-      'Оё шумо бо эътирозҳои мизоҷ кор карда метавонед? Масалан, вақте ки мизоҷ мегӯяд: «Қиммат аст» ё «Маслиҳат мекунам». Шумо чӣ ҷавоб медиҳед?',
-      'Ҳангоми фурӯши рӯ ба рӯ, чӣ гуна шартномаро мебандед, то ки фурӯш анҷом ёбад?',
-      'Оё шумо фурӯши телефонӣ кардаед? Аз чанд лид чандтояш ба харид табдил ёфтанд?',
-      'Вақте ки мизоҷ мегӯяд: «Қиммат аст, дар ҷои дигар арзонтар дидам», ҳаракати минбаъдаи шумо чӣ аст?',
-      'Ҳангоме ки мизоҷ мегӯяд: «Нархатон арзон аст, лекин ҳоло фикр мекунам», шумо чӣ кор мекунед, то ӯ аз фикр ба қарор гузарад?',
-      'Оё шумо медонед, ки оффер чист? Ва кадом офферҳоро истифода мебаред?',
-      'Ҳангоми фурӯш, шумо сӯҳбатро идора мекунед ё танҳо ба саволҳои мизоҷ ҷавоб медиҳед?',
-      'Агар дар корхонаи шумо шуъбаи муосири фурӯш мебуд, ки бе иштироки шумо кор мекард ва даромад 5 баробар зиёд мешуд, ояндаи ширкатро чӣ гуна мебинед? Чаро аз имрӯз оғоз накунед, то аз рақибон қафо намонед?',
+    const MAX_EMPTY = 3;
+
+    const shortLabels = [
+      'Марҳилаҳои фурӯш',
+      'Скрипт',
+      'Эътирозҳои мизоҷ',
+      'Бастани шартнома',
+      'Фурӯши телефонӣ',
+      'Ҷавоб ба «Қиммат аст»',
+      'Ҷавоб ба «Фикр мекунам»',
+      'Оффер',
+      'Идораи сӯҳбат',
+      'Ояндаи ширкат',
     ];
+
+    var toastTimer = null;
+
+    function showToast(msg) {
+      var banner = document.getElementById('validation-banner');
+      document.getElementById('validation-text').textContent = msg;
+      banner.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        banner.classList.remove('show');
+      }, 4000);
+    }
+
+    function clearErrors() {
+      document.querySelectorAll('.q-textarea.error').forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('.q-item.error').forEach(el => el.classList.remove('error'));
+      document.getElementById('validation-banner').classList.remove('show');
+      clearTimeout(toastTimer);
+    }
+
+    // Remove error highlight as user types
+    document.querySelectorAll('.q-textarea').forEach(function(ta) {
+      ta.addEventListener('input', function() {
+        if (this.classList.contains('error') && this.value.trim()) {
+          this.classList.remove('error');
+          this.closest('.q-item').classList.remove('error');
+        }
+        var stillErrors = document.querySelectorAll('.q-textarea.error').length;
+        if (stillErrors <= MAX_EMPTY) {
+          document.getElementById('validation-banner').classList.remove('show');
+        }
+      });
+    });
 
     document.getElementById('qform').addEventListener('submit', function(e) {
       e.preventDefault();
+      clearErrors();
 
-      const text = 'Ҷавоби дуруст';
-      window.open('https://wa.me/992918175700?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
+      var textareas = Array.from(document.querySelectorAll('.q-textarea'));
+      var emptyFields = textareas.filter(function(ta) { return ta.value.trim() === ''; });
+
+      if (emptyFields.length > MAX_EMPTY) {
+        var needed = emptyFields.length - MAX_EMPTY;
+        emptyFields.forEach(function(ta) {
+          ta.classList.add('error');
+          ta.closest('.q-item').classList.add('error');
+        });
+        showToast('Барои ирсол боз ' + needed + ' ҷавоб нависед');
+        emptyFields[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(function() { emptyFields[0].focus({ preventScroll: true }); }, 450);
+        return;
+      }
+
+      // Build message with answers
+      var lines = textareas.map(function(ta, i) {
+        var ans = ta.value.trim();
+        return (i + 1) + '. ' + shortLabels[i] + ':\n' + (ans || '—');
+      });
+      var message = 'Ҷавобҳо:\n\n' + lines.join('\n\n');
+      window.open('https://wa.me/992918175700?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
 
       document.getElementById('form-body').style.display = 'none';
       document.getElementById('success').classList.add('show');
     });
 
     function resetForm() {
+      clearErrors();
       document.getElementById('qform').reset();
       document.getElementById('form-body').style.display = '';
       document.getElementById('success').classList.remove('show');
     }
   </script>
+  <div class="toast" id="validation-banner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <span id="validation-text"></span>
+  </div>
+
 </body>
 </html>
