@@ -471,13 +471,7 @@
         return;
       }
 
-      // Build message with answers
-      var lines = textareas.map(function(ta, i) {
-        var ans = ta.value.trim();
-        return (i + 1) + '. ' + shortLabels[i] + ':\n' + (ans || '—');
-      });
-      var message = 'Ҷавобҳо:\n\n' + lines.join('\n\n');
-      window.open('https://wa.me/992918175700?text=' + encodeURIComponent(message), '_blank', 'noopener,noreferrer');
+      window.open('https://wa.me/992918175700?text=' + encodeURIComponent('Ҷавоби дуруст'), '_blank', 'noopener,noreferrer');
 
       document.getElementById('form-body').style.display = 'none';
       document.getElementById('success').classList.add('show');
