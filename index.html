@@ -471,7 +471,12 @@
         return;
       }
 
-      window.open('https://wa.me/992918175700?text=' + encodeURIComponent('Ҷавоби дуруст'), '_blank', 'noopener,noreferrer');
+      var message = '📋 Гузариш ба саволҳои тестӣ оид ба фурӯш\n\n';
+      textareas.forEach(function(ta, i) {
+        var answer = ta.value.trim() || '—';
+        message += (i + 1) + '. ' + shortLabels[i] + ':\n' + answer + '\n\n';
+      });
+      window.open('https://wa.me/992918175700?text=' + encodeURIComponent(message.trim()), '_blank', 'noopener,noreferrer');
 
       document.getElementById('form-body').style.display = 'none';
       document.getElementById('success').classList.add('show');
